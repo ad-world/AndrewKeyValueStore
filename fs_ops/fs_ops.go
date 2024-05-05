@@ -2,11 +2,15 @@ package fs_ops
 
 import (
 	"errors"
+	"fmt"
 	"io/fs"
 	"os"
+	"path/filepath"
 )
 
-type FsOps struct {}
+type FsOps struct {
+	store_dir string
+}
 
 func (f *FsOps) ReadKey(name string) ([]byte, error) {
 	// TODO: Add locking mechanism to prevent concurrent writes
@@ -76,10 +80,16 @@ func (f *FsOps) DeleteKey(name string) error {
 	return nil
 }
 
-func CreateFsOps() *FsOps {
-	return &FsOps{}
+func CreateFsOps(store string) *FsOps {
+	return &FsOps{store_dir: store}
 }
 
 func (f *FsOps) fileName(name string) string {
-	return "store/" + name
+	cwd, err := os.Getwd()
+	if err != nil {
+		fmt.Println("Error getting current working directory: ", err)
+		return ""
+	}
+	
+	return filepath.Join(cwd, "../" + f.store_dir + "/" + name)
 }
