@@ -13,7 +13,7 @@ type AndrewKeyValueStore struct {
 func CreateAndrewKeyValueStore() *AndrewKeyValueStore {
 	return &AndrewKeyValueStore{
 		store: make(map[string]string),
-		fs_operator: fs_ops.CreateFsOps(),
+		fs_operator: fs_ops.CreateFsOps("store"),
 	}
 }
 
