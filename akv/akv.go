@@ -1,7 +1,6 @@
 package akv
 
 import (
-	"fmt"
 	"akv/fs_ops"
 )
 
@@ -18,16 +17,39 @@ func CreateAndrewKeyValueStore() *AndrewKeyValueStore {
 }
 
 func (store *AndrewKeyValueStore) Get(args *GetRequest, reply *string) error {
-	value, ok := store.store[args.Key]
-	if !ok {
-		return fmt.Errorf("key %s not found", args.Key)
+	data, err := store.fs_operator.ReadKey(args.Key)
+	if err != nil {
+		*reply = ""
+		return err
 	}
-	*reply = value
+
+	*reply = string(data)
+
 	return nil
 }
 
-func (store *AndrewKeyValueStore) Put(args *PutRequest, value string, reply *int) error {
-	store.store[args.Key] = value
-	*reply = len(value)
+func (store *AndrewKeyValueStore) Put(args *PutRequest, reply *bool) error {
+	err := store.fs_operator.WriteKey(args.Key, []byte(args.Value), 0644);
+
+	if err != nil {
+		*reply = false
+		return err
+	} else {
+		*reply = true
+	}
+
+	return nil
+}
+
+func (store *AndrewKeyValueStore) Delete(args *DeleteRequest, reply *bool) error {
+	err := store.fs_operator.DeleteKey(args.Key)
+
+	if err != nil {
+		*reply = false
+		return err
+	} else {
+		*reply = true
+	}
+
 	return nil
 }
