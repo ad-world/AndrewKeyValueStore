@@ -2,7 +2,12 @@ package akv
 
 type AndrewKeyValueAPI interface {
 	Get(args *GetRequest, reply *string) error
-	Put(args *PutRequest, value string, reply *int) error
+	Put(args *PutRequest, reply *bool) error
+	Delete(args *DeleteRequest, reply *bool) error
+}
+
+type DeleteRequest struct {
+	Key string
 }
 
 type GetRequest struct {
