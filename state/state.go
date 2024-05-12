@@ -4,6 +4,7 @@ import (
 	"akv/akv"
 	"encoding/json"
 	"os"
+	"path/filepath"
 )
 
 func SaveState (state *State, akv *akv.AndrewKeyValueStore) error {
@@ -14,7 +15,7 @@ func SaveState (state *State, akv *akv.AndrewKeyValueStore) error {
 		return err
 	}	
 
-	f, err := os.Create("state.json")
+	f, err := os.Create(filepath.Join(state.dir, "state.json"))
 	if err != nil {
 		return err
 	}

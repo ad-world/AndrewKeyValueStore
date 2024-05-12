@@ -1,3 +1,5 @@
 package state
 
-type State struct {}
+type State struct {
+	dir string
+}

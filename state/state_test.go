@@ -2,13 +2,26 @@ package state
 
 import (
 	"akv/akv"
+	"os"
 	"testing"
 )
 
+func CreateTestDir(dir string) {
+	os.Mkdir(dir, 0777)	
+}
+
+func DeleteTestDir(dir string) {
+	os.RemoveAll(dir)
+}
+
 func TestSaveState(t *testing.T) {
+	var test_dir string = "test_temp"
+	// Setup
+	CreateTestDir(test_dir)
+
 	// Create AKV
 	store := akv.CreateAndrewKeyValueStore()
-	state := &State{}
+	state := &State{ dir: test_dir}
 
 	// Put a key in the store
 	putRequest := &akv.PutRequest{Key: "test_key", Value: "test_value"}
@@ -31,4 +44,7 @@ func TestSaveState(t *testing.T) {
 	if err != nil {
 		t.Errorf("Error saving state: %v", err)
 	}	
+
+	// Cleanup
+	DeleteTestDir(test_dir)
 }
