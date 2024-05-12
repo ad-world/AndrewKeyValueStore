@@ -1,9 +1,13 @@
 package akv
 
-type AndrewKeyValueAPI interface {
-	Get(args *GetRequest, reply *string) error
-	Put(args *PutRequest, reply *bool) error
-	Delete(args *DeleteRequest, reply *bool) error
+import (
+	"time"
+)
+
+type Key string
+type Value struct {
+	Value string 		     `json:"value"`
+	LastUpdated time.Time	 `json:"last_updated"`
 }
 
 type DeleteRequest struct {
