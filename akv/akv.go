@@ -1,55 +1,65 @@
 package akv
 
 import (
-	"akv/fs_ops"
+	"errors"
+	"time"
 )
 
 type AndrewKeyValueStore struct {
-	store map[string]string
-	fs_operator fs_ops.FsOpsInterface
+	store map[Key]Value
+}
+
+type Key string
+type Value struct {
+	Value string
+	LastUpdated time.Time
 }
 
 func CreateAndrewKeyValueStore() *AndrewKeyValueStore {
 	return &AndrewKeyValueStore{
-		store: make(map[string]string),
-		fs_operator: fs_ops.CreateFsOps("store"),
+		store: make(map[Key]Value),
 	}
 }
 
 func (store *AndrewKeyValueStore) Get(args *GetRequest, reply *string) error {
-	data, err := store.fs_operator.ReadKey(args.Key)
-	if err != nil {
+	// TODO: add locking mechanism before reading the store
+	value, ok := store.store[Key(args.Key)]
+	if !ok {
 		*reply = ""
-		return err
+		return errors.New("Key " + args.Key + "  not found")
 	}
 
-	*reply = string(data)
+	// TODO: unlock the store
+
+	*reply = value.Value
 
 	return nil
 }
 
 func (store *AndrewKeyValueStore) Put(args *PutRequest, reply *bool) error {
-	err := store.fs_operator.WriteKey(args.Key, []byte(args.Value), 0644);
-
-	if err != nil {
-		*reply = false
-		return err
-	} else {
-		*reply = true
+	// TODO: add locking mechanism before updating the store
+	store.store[Key(args.Key)] = Value{
+		Value: args.Value,
+		LastUpdated: time.Now(),
 	}
 
+	// TODO: unlock the store
+
+	*reply = true
 	return nil
 }
 
 func (store *AndrewKeyValueStore) Delete(args *DeleteRequest, reply *bool) error {
-	err := store.fs_operator.DeleteKey(args.Key)
-
-	if err != nil {
-		*reply = false
-		return err
-	} else {
+	// TODO: add locking mechanism before updating the store
+	_, ok := store.store[Key(args.Key)]
+	
+	if ok {
+		delete((store.store), Key(args.Key))
 		*reply = true
+	} else {
+		*reply = false
 	}
+	// TODO: unlock the store
 
 	return nil
 }

@@ -1,45 +1,13 @@
 package akv
 
 import (
-	"akv/fs_ops"
-	"io/fs"
-	"os"
-	"path/filepath"
 	"testing"
 )
 
-func CreateTestDir() {
-	// Create the test directory for this test
-	cwd, err := os.Getwd()
-	if err != nil {
-		panic(err)
-	}
-
-	fullPath := filepath.Join(cwd, "../test_store")
-	err = os.Mkdir(fullPath, fs.ModePerm)
-	if err != nil {
-		panic(err)
-	}
-}
-
-func DeleteTestDir() {
-	// Delete the test directory for this test
-	cwd, err := os.Getwd()
-	if err != nil {
-		panic(err)
-	}
-
-	fullPath := filepath.Join(cwd, "../test_store")
-	err = os.RemoveAll(fullPath)
-	if err != nil {
-		panic(err)
-	}
-}
 
 func TestAKV(t *testing.T) {
 	// Test setup
-	CreateTestDir();
-	store := &AndrewKeyValueStore{fs_operator: fs_ops.CreateFsOps("test_store")}
+	store := CreateAndrewKeyValueStore();
 	
 	// Test reading a key that doesn't exist
 	getRequest := &GetRequest{Key: "nonexistent_key"}
@@ -82,5 +50,4 @@ func TestAKV(t *testing.T) {
 	if reply != "test_value" {
 		t.Errorf("Expected test_value, got %v", reply)
 	}
-	DeleteTestDir();
 }
