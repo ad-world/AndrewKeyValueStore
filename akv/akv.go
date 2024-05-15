@@ -6,24 +6,18 @@ import (
 )
 
 type AndrewKeyValueStore struct {
-	store map[Key]Value
-}
-
-type Key string
-type Value struct {
-	Value string
-	LastUpdated time.Time
+	Store map[Key]Value
 }
 
 func CreateAndrewKeyValueStore() *AndrewKeyValueStore {
 	return &AndrewKeyValueStore{
-		store: make(map[Key]Value),
+		Store: make(map[Key]Value),
 	}
 }
 
 func (store *AndrewKeyValueStore) Get(args *GetRequest, reply *string) error {
 	// TODO: add locking mechanism before reading the store
-	value, ok := store.store[Key(args.Key)]
+	value, ok := store.Store[Key(args.Key)]
 	if !ok {
 		*reply = ""
 		return errors.New("Key " + args.Key + "  not found")
@@ -38,7 +32,7 @@ func (store *AndrewKeyValueStore) Get(args *GetRequest, reply *string) error {
 
 func (store *AndrewKeyValueStore) Put(args *PutRequest, reply *bool) error {
 	// TODO: add locking mechanism before updating the store
-	store.store[Key(args.Key)] = Value{
+	store.Store[Key(args.Key)] = Value{
 		Value: args.Value,
 		LastUpdated: time.Now(),
 	}
@@ -51,10 +45,10 @@ func (store *AndrewKeyValueStore) Put(args *PutRequest, reply *bool) error {
 
 func (store *AndrewKeyValueStore) Delete(args *DeleteRequest, reply *bool) error {
 	// TODO: add locking mechanism before updating the store
-	_, ok := store.store[Key(args.Key)]
+	_, ok := store.Store[Key(args.Key)]
 	
 	if ok {
-		delete((store.store), Key(args.Key))
+		delete((store.Store), Key(args.Key))
 		*reply = true
 	} else {
 		*reply = false
