@@ -1,13 +1,13 @@
 package main
 
 import (
+	"akv/akv"
 	"bufio"
 	"flag"
 	"fmt"
+	"net/rpc"
 	"os"
 	"strings"
-	"akv/akv"
-	"net/rpc"
 )
 
 func printCommandUsage() {
@@ -35,6 +35,7 @@ func main() {
 
 	if err != nil {
 		fmt.Println("Error in connecting to server:", err)
+		os.Exit(1)
 	} 
 
 	for {
