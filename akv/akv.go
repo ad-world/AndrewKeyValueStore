@@ -2,6 +2,7 @@ package akv
 
 import (
 	"errors"
+	"log"
 	"time"
 )
 
@@ -17,12 +18,15 @@ func CreateAndrewKeyValueStore() *AndrewKeyValueStore {
 
 func (store *AndrewKeyValueStore) Get(args *GetRequest, reply *string) error {
 	// TODO: add locking mechanism before reading the store
+	log.Println("Get request for key ", args.Key)
 	value, ok := store.Store[Key(args.Key)]
 	if !ok {
 		*reply = ""
-		return errors.New("Key " + args.Key + "  not found")
+		log.Println("Key " + args.Key + " not found")
+		return errors.New("Key " + args.Key + " not found")
 	}
 
+	log.Println("Value for key ", args.Key, " found.")
 	// TODO: unlock the store
 
 	*reply = value.Value
@@ -31,6 +35,7 @@ func (store *AndrewKeyValueStore) Get(args *GetRequest, reply *string) error {
 }
 
 func (store *AndrewKeyValueStore) Put(args *PutRequest, reply *bool) error {
+	log.Println("Put request for key ", args.Key)
 	// TODO: add locking mechanism before updating the store
 	store.Store[Key(args.Key)] = Value{
 		Value: args.Value,
@@ -44,13 +49,16 @@ func (store *AndrewKeyValueStore) Put(args *PutRequest, reply *bool) error {
 }
 
 func (store *AndrewKeyValueStore) Delete(args *DeleteRequest, reply *bool) error {
+	log.Println("Delete request for key ", args.Key)
 	// TODO: add locking mechanism before updating the store
 	_, ok := store.Store[Key(args.Key)]
 	
 	if ok {
 		delete((store.Store), Key(args.Key))
+		log.Println("Key " + args.Key + " deleted.")
 		*reply = true
 	} else {
+		log.Println("Key " + args.Key + " not found.")
 		*reply = false
 	}
 	// TODO: unlock the store
