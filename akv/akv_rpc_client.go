@@ -26,3 +26,9 @@ func (client *AndrewKeyValueClient) Delete(key string) (bool, error) {
 	err := client.Call("AndrewKeyValueStore.Delete", &DeleteRequest{Key: key}, &reply)
 	return reply, err
 }
+
+func (client *AndrewKeyValueClient) GetLastUpdated(key string) (string, error) {
+	var reply string
+	err := client.Call("AndrewKeyValueStore.GetLastUpdated", &GetLastUpdatedRequest{Key: key}, &reply)
+	return reply, err
+}

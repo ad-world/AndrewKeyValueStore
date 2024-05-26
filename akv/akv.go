@@ -29,7 +29,7 @@ func (store *AndrewKeyValueStore) Get(args *GetRequest, reply *string) error {
 		return errors.New("Key " + args.Key + " not found")
 	}
 
-	log.Println("Value for key ", args.Key, " found.")
+	log.Println("Value for key", args.Key, "found.")
 	// TODO: unlock the store
 
 	*reply = value.Value
