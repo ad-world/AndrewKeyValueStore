@@ -7,6 +7,7 @@ import (
 	"path/filepath"
 )
 
+// SaveState saves the state of the store to a file.
 func SaveState (state *State, akv *akv.AndrewKeyValueStore) error {
 	store := akv.Store
 	// Create a JSON string from the store
@@ -29,6 +30,7 @@ func SaveState (state *State, akv *akv.AndrewKeyValueStore) error {
 	return nil
 }
 
+// RestoreState restores the state of the store from a file into the akv instance.
 func RestoreState (state *State, akv *akv.AndrewKeyValueStore) error {
 	// Open the state file
 	f, err := os.Open(filepath.Join(state.dir, "state.json"))

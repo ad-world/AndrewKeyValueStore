@@ -22,3 +22,7 @@ type PutRequest struct {
 	Key string
 	Value string
 }
+
+type GetLastUpdatedRequest struct {
+	Key string
+}
