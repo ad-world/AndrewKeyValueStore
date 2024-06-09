@@ -8,9 +8,9 @@ import (
 )
 
 func main() {
-	server := new(akv.AndrewKeyValueStore)
+	server := akv.CreateAndrewKeyValueStore()
 	rpc.Register(server)
-	l, err := net.Listen("tcp", ":1234")
+	l, err := net.Listen("tcp", "localhost:1234")
 
 	if err != nil {
 		panic(err)
