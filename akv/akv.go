@@ -19,20 +19,19 @@ func CreateAndrewKeyValueStore() *AndrewKeyValueStore {
 
 // Get retrieves the value of a key from the store. 
 // It will populate the reply with the value of the key if it exists, otherwise it will return an error.
-func (store *AndrewKeyValueStore) Get(args *GetRequest, reply *string) error {
+func (store *AndrewKeyValueStore) Get(args *GetRequest, reply *Value) error {
 	// TODO: add locking mechanism before reading the store
 	log.Println("Get request for key ", args.Key)
 	value, ok := store.Store[Key(args.Key)]
 	if !ok {
-		*reply = ""
-		log.Println("Key " + args.Key + " not found")
-		return errors.New("Key " + args.Key + " not found")
+		*reply = Value{"", time.Time{}}
+		log.Println("Key '" + args.Key + "' not found")
+		return errors.New("Key '" + args.Key + "' not found")
 	}
 
-	log.Println("Value for key", args.Key, "found.")
 	// TODO: unlock the store
 
-	*reply = value.Value
+	*reply = value
 
 	return nil
 }
@@ -40,7 +39,7 @@ func (store *AndrewKeyValueStore) Get(args *GetRequest, reply *string) error {
 // Put inserts a key-value pair into the store. 
 // It will populate the reply with true if the operation is successful, otherwise it will return an error.
 func (store *AndrewKeyValueStore) Put(args *PutRequest, reply *bool) error {
-	log.Println("Put request for key ", args.Key)
+	log.Println("Put request for key '" + args.Key + "'")
 	// TODO: add locking mechanism before updating the store
 	store.Store[Key(args.Key)] = Value{
 		Value: args.Value,
@@ -56,16 +55,16 @@ func (store *AndrewKeyValueStore) Put(args *PutRequest, reply *bool) error {
 // Delete removes a key from the store. 
 // It will populate the reply with true if the operation is successful, otherwise it will return an error.
 func (store *AndrewKeyValueStore) Delete(args *DeleteRequest, reply *bool) error {
-	log.Println("Delete request for key ", args.Key)
+	log.Println("Delete request for key '" + args.Key + "'")
 	// TODO: add locking mechanism before updating the store
 	_, ok := store.Store[Key(args.Key)]
 	
 	if ok {
 		delete((store.Store), Key(args.Key))
-		log.Println("Key " + args.Key + " deleted.")
+		log.Println("Key '" + args.Key + "' deleted.")
 		*reply = true
 	} else {
-		log.Println("Key " + args.Key + " not found.")
+		log.Println("Key '" + args.Key + "' not found.")
 		*reply = false
 	}
 	// TODO: unlock the store
@@ -76,15 +75,15 @@ func (store *AndrewKeyValueStore) Delete(args *DeleteRequest, reply *bool) error
 // GetLastUpdated retrieves the last updated time of a key from the store. 
 // It will populate the reply with the last updated time of the key if it exists, otherwise it will return an error.
 func (store *AndrewKeyValueStore) GetLastUpdated(args *GetLastUpdatedRequest, reply *time.Time) error {
-	log.Println("GetLastUpdated request for key ", args.Key)
+	log.Println("GetLastUpdated request for key '" + args.Key + "'")
 	item, ok := store.Store[Key(args.Key)]
 
 	if !ok {
-		log.Println("Key " + args.Key + " not found")
-		return errors.New("Key " + args.Key + " not found")
+		log.Println("Key '" + args.Key + "' not found")
+		return errors.New("Key '" + args.Key + "' not found")
 	}
 
-	log.Println("Last updated time for key ", args.Key, " found.")
+	log.Println("Last updated time for key '" + args.Key + "' found.")
 	*reply = item.LastUpdated
 
 	return nil

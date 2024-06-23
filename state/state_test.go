@@ -90,26 +90,26 @@ func TestRestoreState(t *testing.T) {
 
 	// Check that the keys are the same
 	getRequest := &akv.GetRequest{Key: "test_key"}
-	getReply := ""
+	getReply := akv.Value{}
 	err = new_store.Get(getRequest, &getReply)
 
 	if err != nil {
 		t.Errorf("Error getting key: %v", err)
 	}
 
-	if getReply != "test_value" {
+	if getReply.Value != "test_value" {
 		t.Errorf("Expected value: test_value, got: %v", getReply)
 	}
 
 	getRequest = &akv.GetRequest{Key: "test_key2"}
-	getReply = ""
+	getReply.Value = ""
 	err = new_store.Get(getRequest, &getReply)
 	
 	if err != nil {
 		t.Errorf("Error getting key: %v", err)
 	}
 
-	if getReply != "test_value2" {
+	if getReply.Value != "test_value2" {
 		t.Errorf("Expected value: test_value2, got: %v", getReply)
 	}
 	

@@ -11,7 +11,7 @@ func TestAKV(t *testing.T) {
 	
 	// Test reading a key that doesn't exist
 	getRequest := &GetRequest{Key: "nonexistent_key"}
-	var reply string
+	var reply Value
 	err := store.Get(getRequest, &reply)
 
 	// Should receive an error here
@@ -20,7 +20,7 @@ func TestAKV(t *testing.T) {
 	}
 	
 	// Reply should be empty string
-	if reply != "" {
+	if reply.Value != "" {
 		t.Errorf("Expected empty string, got %v", reply)
 	}
 	
@@ -47,7 +47,7 @@ func TestAKV(t *testing.T) {
 	}
 	
 	// reply should be "test_value"
-	if reply != "test_value" {
+	if reply.Value != "test_value" {
 		t.Errorf("Expected test_value, got %v", reply)
 	}
 }
