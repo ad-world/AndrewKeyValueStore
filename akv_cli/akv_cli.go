@@ -5,7 +5,6 @@ import (
 	"bufio"
 	"flag"
 	"fmt"
-	"net/rpc"
 	"os"
 	"strings"
 )
@@ -14,6 +13,12 @@ func printCommandUsage() {
 	fmt.Println("Invalid command: ")
 	fmt.Println("Usage: <command> <key> <value>")
 	fmt.Println("Commands: get, put, delete")
+}
+
+func printValue(key string, val akv.Value) {
+	fmt.Println("Key:", key)
+	fmt.Println("Value:", val.Value)
+	fmt.Println("Last Updated:", val.LastUpdated)
 }
 
 func main() {
@@ -28,10 +33,7 @@ func main() {
 	}
 
 	in := bufio.NewReader(os.Stdin)
-
-	andrew := new(akv.AndrewKeyValueClient)
-	var err error
-	andrew.Client, err = rpc.Dial("tcp", address)
+	andrew, err := akv.CreateAndrewKeyValueClient(address)
 
 	if err != nil {
 		fmt.Println("Error in connecting to server:", err)
@@ -64,7 +66,7 @@ func main() {
 				fmt.Println("Error in Get:", err)
 				continue
 			}
-			fmt.Println("Value of", parts[1], "is", value)
+			printValue(parts[1], value)
 		case "put":
 			if len(parts) != 3 {
 				printCommandUsage()

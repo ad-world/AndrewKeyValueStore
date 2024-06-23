@@ -3,12 +3,20 @@ package akv
 import "net/rpc"
 
 type AndrewKeyValueClient struct {
-	*rpc.Client
+	*rpc.Client	
+}
+
+func CreateAndrewKeyValueClient(address string) (*AndrewKeyValueClient, error) {
+	client, err := rpc.Dial("tcp", address)
+	if err != nil {
+		return nil, err
+	}
+	return &AndrewKeyValueClient{client}, nil
 }
 
 // Get calls the Get method of the AndrewKeyValueStore on the server and returns the value of the key if it exists, otherwise it will return an error.
-func (client *AndrewKeyValueClient) Get(key string) (string, error) {
-	var reply string
+func (client *AndrewKeyValueClient) Get(key string) (Value, error) {
+	var reply Value
 	err := client.Call("AndrewKeyValueStore.Get", &GetRequest{Key: key}, &reply)
 	return reply, err
 }
