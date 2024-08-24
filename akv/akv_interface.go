@@ -26,3 +26,17 @@ type PutRequest struct {
 type GetLastUpdatedRequest struct {
 	Key string
 }
+
+type MessageType int
+
+const (
+	GET MessageType = 0
+	PUT MessageType = 1
+	DELETE MessageType = 2
+	GET_LAST_UPDATED MessageType = 3
+	GET_RESPONSE MessageType = 4
+	PUT_RESPONSE MessageType = 5
+	DELETE_RESPONSE MessageType = 6
+	GET_LAST_UPDATED_RESPONSE MessageType = 7
+	ERROR MessageType = 8
+)

@@ -10,15 +10,15 @@ import (
 )
 
 func printCommandUsage() {
-	fmt.Println("Invalid command: ")
-	fmt.Println("Usage: <command> <key> <value>")
-	fmt.Println("Commands: get, put, delete")
+	fmt.Println("\tInvalid command: ")
+	fmt.Println("\tUsage: <command> <key> <value>")
+	fmt.Println("\tCommands: get, put, delete")
 }
 
-func printValue(key string, val akv.Value) {
-	fmt.Println("Key:", key)
-	fmt.Println("Value:", val.Value)
-	fmt.Println("Last Updated:", val.LastUpdated)
+func printValue(key string, val akv.Message) {
+	fmt.Println("\tKey:", key)
+	fmt.Println("\tValue:", val.Value)
+	fmt.Println("\tLast Updated:", val.Timestamp)
 }
 
 func main() {

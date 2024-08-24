@@ -25,17 +25,16 @@ func TestSaveState(t *testing.T) {
 
 	// Put a key in the store
 	putRequest := &akv.PutRequest{Key: "test_key", Value: "test_value"}
-	reply := false
-	putReply := store.Put(putRequest, &reply)
+	putReply, _ := store.Put(putRequest)
 
-	if putReply != nil {
+	if putReply != true {
 		t.Errorf("Error writing key: %v", putReply)
 	}
 
 	// Put another key in the store
 	putRequest = &akv.PutRequest{Key: "test_key2", Value: "test_value2"}
-	putReply = store.Put(putRequest, &reply)
-	if putReply != nil {
+	putReply, _ = store.Put(putRequest)
+	if putReply != true {
 		t.Errorf("Error writing key: %v", putReply)
 	}
 
@@ -60,17 +59,16 @@ func TestRestoreState(t *testing.T) {
 
 	// Put a key in the store
 	putRequest := &akv.PutRequest{Key: "test_key", Value: "test_value"}
-	reply := false
-	putReply := store.Put(putRequest, &reply)
+	putReply, _ := store.Put(putRequest)
 
-	if putReply != nil {
+	if putReply != true {
 		t.Errorf("Error writing key: %v", putReply)
 	}
 
 	// Put another key in the store
 	putRequest = &akv.PutRequest{Key: "test_key2", Value: "test_value2"}
-	putReply = store.Put(putRequest, &reply)
-	if putReply != nil {
+	putReply, _ = store.Put(putRequest)
+	if putReply != true{
 		t.Errorf("Error writing key: %v", putReply)
 	}
 
@@ -90,8 +88,7 @@ func TestRestoreState(t *testing.T) {
 
 	// Check that the keys are the same
 	getRequest := &akv.GetRequest{Key: "test_key"}
-	getReply := akv.Value{}
-	err = new_store.Get(getRequest, &getReply)
+	getReply, err := new_store.Get(getRequest)
 
 	if err != nil {
 		t.Errorf("Error getting key: %v", err)
@@ -102,8 +99,7 @@ func TestRestoreState(t *testing.T) {
 	}
 
 	getRequest = &akv.GetRequest{Key: "test_key2"}
-	getReply.Value = ""
-	err = new_store.Get(getRequest, &getReply)
+	getReply, err = new_store.Get(getRequest)
 	
 	if err != nil {
 		t.Errorf("Error getting key: %v", err)
