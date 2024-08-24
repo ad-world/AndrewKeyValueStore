@@ -1,5 +1,5 @@
 # Andrew Key Value Store
-
+- This README is outdated, as the program now uses websockets instead of RPC. I will update the README soon <3
 - A distribued key value store that uses semantics based on the Andrew File System (developed at Carnegie Mellon University).
 
 ## Contents
