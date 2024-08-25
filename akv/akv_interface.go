@@ -39,4 +39,5 @@ const (
 	DELETE_RESPONSE MessageType = 6
 	GET_LAST_UPDATED_RESPONSE MessageType = 7
 	ERROR MessageType = 8
+	INVALIDATE_CACHE MessageType = 9
 )
