@@ -1,81 +1,70 @@
-package main
+package ws_server
 
 import (
 	"akv/akv"
-	"fmt"
 	"io"
 	"log"
 	"net/http"
-
 	"github.com/gorilla/websocket"
 )
 
-var upgrader = websocket.Upgrader{
-	CheckOrigin: func(r *http.Request) bool {
-		return true
-	},
+
+func CreateWsServer() *WsServer {
+	return &WsServer{
+		clients: make(map[*websocket.Conn]*ClientInfo),
+		broadcast: make(chan akv.Message),
+		upgrader: websocket.Upgrader{
+			CheckOrigin: func(r *http.Request) bool {
+				return true
+			},
+		},
+	}
 }
 
-type ClientInfo struct {
-	conn *websocket.Conn
-	send chan akv.Message
+func (server *WsServer) BroadcastMessage(msg akv.Message) {
+	server.broadcast <- msg
 }
 
-// Create a map of connected clients
-var clients = make(map[*websocket.Conn]*ClientInfo)
-
-// Create a channel of message type
-var broadcast = make(chan akv.Message)
-
-// Function that sends a message to the channel
-func broadcastMessage(msg akv.Message) {
-    broadcast <- msg
-}
-
-func handleBroadcasts() {
-	// Whenever a message is send to the channel
-	for msg := range broadcast {
-        for _, client := range clients {
-            select {
-                // Message sent to client's channel
-            case client.send <- msg:
-            default:
-                // Client's channel is full, close the connection
-                close(client.send)
-                delete(clients, client.conn)
-            }
-        }
-    }
-}
-
-func handleClient(client *ClientInfo) {
-	defer func() {
-		client.conn.Close();
-		delete(clients, client.conn)
-	}()
-
-	for msg := range client.send {
-		log.Printf("Sending message to client");
-		err := client.conn.WriteJSON(msg);
-		if err != nil {
-			log.Printf("Error sending message to client: %v", err)
-            return
+func (server *WsServer) HandleBroadcast() {
+	for msg := range server.broadcast {
+		for _, client := range server.clients {
+			select {
+			case client.send <- msg:
+			default: 
+				close(client.send)
+				delete(server.clients, client.conn)
+			}
 		}
 	}
 }
 
-func handleWebSocket(ws *websocket.Conn, store *akv.AndrewKeyValueStore) {
+func (server *WsServer) HandleClient(client *ClientInfo) {
+	defer func() {
+		client.conn.Close();
+		delete(server.clients, client.conn);
+	}()
+
+	for msg := range client.send {
+		err := client.conn.WriteJSON(msg);
+		if err != nil {
+			log.Printf("Error sending message to client with IP %s", client.conn.RemoteAddr())
+			return
+		}
+	}
+}
+
+func (server* WsServer) HandleWebsocket(ws *websocket.Conn, store *akv.AndrewKeyValueStore) {
 	client := &ClientInfo{
 		conn: ws,
 		send: make(chan akv.Message, 256),
 	}
 
-	clients[ws] = client
+	server.clients[ws] = client
 
-	go handleClient(client);
+	go server.HandleClient(client)
 
 	defer func() {
-		delete(clients, ws)
+		delete(server.clients, ws)
 		close(client.send)
 	}()
 
@@ -123,7 +112,7 @@ func handleWebSocket(ws *websocket.Conn, store *akv.AndrewKeyValueStore) {
 				response := akv.Message{Type: akv.PUT_RESPONSE, Key: msg.Key, Value: msg.Value, Success: success}
 				client.send <- response
 				
-				broadcastMessage(akv.Message{Type: akv.INVALIDATE_CACHE, Key: msg.Key});
+				server.BroadcastMessage(akv.Message{Type: akv.INVALIDATE_CACHE, Key: msg.Key});
 			case akv.DELETE:
 				log.Println("DELETE request for Key: ", msg.Key);
 
@@ -152,26 +141,11 @@ func handleWebSocket(ws *websocket.Conn, store *akv.AndrewKeyValueStore) {
 	}
 }
 
-func handleConnections(store *akv.AndrewKeyValueStore, w http.ResponseWriter, r *http.Request) {
-	ws, err := upgrader.Upgrade(w, r, nil)
+func (server *WsServer) HandleConnections(store *akv.AndrewKeyValueStore, w http.ResponseWriter, r *http.Request) {
+	ws, err := server.upgrader.Upgrade(w, r, nil)
 	if err != nil {
         log.Printf("Failed to upgrade connection: %v", err)
         return
     }
-	go handleWebSocket(ws, store);
-}
-
-func main() {
-	store := akv.CreateAndrewKeyValueStore()
-	http.HandleFunc("/ws", func(w http.ResponseWriter, r *http.Request) {
-		handleConnections(store, w, r)
-	})
-
-	go handleBroadcasts()
-
-	fmt.Println("Server started on port 1234")
-	err := http.ListenAndServe(":1234", nil)
-	if err != nil {
-		log.Fatal("ListenAndServe: ", err)
-	}
+	go server.HandleWebsocket(ws, store);
 }
