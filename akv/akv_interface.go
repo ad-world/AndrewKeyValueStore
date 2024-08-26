@@ -2,6 +2,8 @@ package akv
 
 import (
 	"time"
+
+	"github.com/gorilla/websocket"
 )
 
 type Key string
@@ -27,6 +29,11 @@ type GetLastUpdatedRequest struct {
 	Key string
 }
 
+
+type AndrewKeyValueStore struct {
+	Store map[Key]Value
+}
+
 type MessageType int
 
 const (
@@ -41,3 +48,21 @@ const (
 	ERROR MessageType = 8
 	INVALIDATE_CACHE MessageType = 9
 )
+
+type Message struct {
+	Type      MessageType  `json:"type"`
+	Key       string  `json:"key"`
+	Value     string  `json:"value"`
+	Timestamp *time.Time  `json:"timestamp"`
+	Success   bool   `json:"success"`
+	Err       string  `json:"err"`
+}
+
+type AndrewKeyValueClient struct {
+	conn *websocket.Conn
+	GetChannel chan Message
+	PutChannel chan Message
+	DeleteChannel chan Message
+	GetLastUpdatedChannel chan Message
+	CacheInvalidationChannel chan Message
+}

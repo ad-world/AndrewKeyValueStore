@@ -5,27 +5,9 @@ import (
 	"fmt"
 	"log"
 	"time"
-
 	"github.com/gorilla/websocket"
 )
 
-type Message struct {
-	Type      MessageType  `json:"type"`
-	Key       string  `json:"key"`
-	Value     string  `json:"value"`
-	Timestamp *time.Time  `json:"timestamp"`
-	Success   bool   `json:"success"`
-	Err       string  `json:"err"`
-}
-
-type AndrewKeyValueClient struct {
-	conn *websocket.Conn
-	GetChannel chan Message
-	PutChannel chan Message
-	DeleteChannel chan Message
-	GetLastUpdatedChannel chan Message
-	CacheInvalidationChannel chan Message
-}
 
 func CreateAndrewKeyValueClient(address string) (*AndrewKeyValueClient, error) {
 	c, _, err := websocket.DefaultDialer.Dial("ws://"+address+"/ws", nil)
