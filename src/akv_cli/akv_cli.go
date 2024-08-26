@@ -1,7 +1,7 @@
 package main
 
 import (
-	"akv/akv"
+	"akv/src/akv"
 	"bufio"
 	"flag"
 	"fmt"

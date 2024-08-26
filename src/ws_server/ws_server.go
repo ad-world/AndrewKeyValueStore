@@ -1,7 +1,7 @@
 package ws_server
 
 import (
-	"akv/akv"
+	"akv/src/akv"
 	"io"
 	"log"
 	"net/http"

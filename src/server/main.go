@@ -1,8 +1,8 @@
 package main
 
 import (
-	"akv/akv"
-	"akv/ws_server"
+	"akv/src/akv"
+	"akv/src/ws_server"
 	"fmt"
 	"log"
 	"net/http"
