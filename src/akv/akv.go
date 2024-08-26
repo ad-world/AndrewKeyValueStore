@@ -5,9 +5,6 @@ import (
 	"time"
 )
 
-type AndrewKeyValueStore struct {
-	Store map[Key]Value
-}
 
 // CreateAndrewKeyValueStore creates a new instance of AndrewKeyValueStore with an empty store and returns a pointer to it.
 func CreateAndrewKeyValueStore() *AndrewKeyValueStore {
