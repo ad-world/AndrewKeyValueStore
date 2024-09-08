@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"time"
+
 	"github.com/gorilla/websocket"
 )
 
@@ -21,6 +22,7 @@ func CreateAndrewKeyValueClient(address string) (*AndrewKeyValueClient, error) {
 		DeleteChannel: make(chan Message),
 		GetLastUpdatedChannel: make(chan Message),
 		CacheInvalidationChannel: make(chan Message),
+		cache: make(map[Key]Value),
 	}
 	return client, nil
 }
@@ -41,7 +43,7 @@ func (client *AndrewKeyValueClient) send(msg Message) (error) {
 			}
 
 			if (response.Type == INVALIDATE_CACHE) {
-				log.Print("Invalidate");
+				log.Print("Invalidate cache message received");
 				client.CacheInvalidationChannel <- response
 				continue
 			} else if (response.Type == GET_RESPONSE) {
@@ -60,12 +62,20 @@ func (client *AndrewKeyValueClient) send(msg Message) (error) {
 }
 
 func (client *AndrewKeyValueClient) Get(key string) (Message, error) {
+	val, ok := client.TryGetFromCache(key)
+	if ok {
+		log.Println("Cache hit for key: ", key);
+		return Message{Type: GET_RESPONSE, Key: key, Value: val.Value, Timestamp: &val.LastUpdated, Success: true}, nil
+	}
+
 	err := client.send(Message{Type: GET, Key: key})
 	response := <- client.GetChannel
 
 	if !response.Success {
 		return Message{}, errors.New(response.Err);
 	}
+
+	client.UpdateCache(key, Value{Value: response.Value, LastUpdated: *response.Timestamp})
 
 	return response, err
 }
@@ -78,6 +88,8 @@ func (client *AndrewKeyValueClient) Put(key string, value string) (bool, error) 
 		return false, errors.New(response.Err);
 	}
 
+	client.UpdateCache(key, Value{Value: value, LastUpdated: *response.Timestamp})
+
 	return response.Success, err
 }
 
@@ -88,6 +100,8 @@ func (client *AndrewKeyValueClient) Delete(key string) (bool, error) {
 	if !response.Success {
 		return false, errors.New(response.Err);
 	}
+
+	client.InvalidateCache(key)
 
 	return response.Success, err
 }
@@ -105,4 +119,25 @@ func (client *AndrewKeyValueClient) GetLastUpdated(key string) (*time.Time, erro
 
 func (client *AndrewKeyValueClient) Close() {
 	client.conn.Close()
+}
+
+func (client *AndrewKeyValueClient) TryGetFromCache(key string) (Value, bool) {
+	value, ok := client.cache[Key(key)]
+	return value, ok
+}
+
+func (client *AndrewKeyValueClient) InvalidateCache(key string) {
+	delete(client.cache, Key(key))
+}
+
+func (client *AndrewKeyValueClient) UpdateCache(key string, value Value) {
+	client.cache[Key(key)] = value
+}
+
+func (client *AndrewKeyValueClient) ListenForCacheInvalidation() {
+	for {
+		msg := <- client.CacheInvalidationChannel
+		log.Printf("Invalidating cache for key: %s", msg.Key)
+		client.InvalidateCache(msg.Key)
+	}
 }

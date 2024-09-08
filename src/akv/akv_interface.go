@@ -65,4 +65,5 @@ type AndrewKeyValueClient struct {
 	DeleteChannel chan Message
 	GetLastUpdatedChannel chan Message
 	CacheInvalidationChannel chan Message
+	cache map[Key]Value
 }
