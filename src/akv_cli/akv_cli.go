@@ -35,6 +35,8 @@ func main() {
 	in := bufio.NewReader(os.Stdin)
 	andrew, err := akv.CreateAndrewKeyValueClient(address)
 
+	go andrew.ListenForCacheInvalidation();
+
 	if err != nil {
 		fmt.Println("Error in connecting to server:", err)
 		os.Exit(1)

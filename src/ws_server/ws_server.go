@@ -5,6 +5,8 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"time"
+
 	"github.com/gorilla/websocket"
 )
 
@@ -109,7 +111,9 @@ func (server* WsServer) HandleWebsocket(ws *websocket.Conn, store *akv.AndrewKey
 					continue
 				}
 				
-				response := akv.Message{Type: akv.PUT_RESPONSE, Key: msg.Key, Value: msg.Value, Success: success}
+				cur_time := time.Now()
+
+				response := akv.Message{Type: akv.PUT_RESPONSE, Key: msg.Key, Value: msg.Value, Success: success, Timestamp: &cur_time}
 				client.send <- response
 				
 				server.BroadcastMessage(akv.Message{Type: akv.INVALIDATE_CACHE, Key: msg.Key});
